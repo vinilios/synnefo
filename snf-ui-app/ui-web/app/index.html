@@ -9,16 +9,16 @@
 
     {{content-for 'head'}}
 
-    <link rel="stylesheet" href="{{ MEDIA_URL }}ui/assets/vendor.css">
-    <link rel="stylesheet" href="{{ MEDIA_URL }}ui/assets/ui-web.css">
+    <link rel="stylesheet" href="/dist/assets/vendor.css">
+    <link rel="stylesheet" href="/dist/assets/ui-web.css">
   </head>
   <body>
     {{content-for 'body'}}
     <script>
-      window.SETTINGS = {{ app_settings|safe }}
+      window.SETTINGS = {token: 'ask'};
     </script>
-    <script src="{{ MEDIA_URL }}ui/assets/vendor.js"></script>
-    <script src="{{ MEDIA_URL }}ui/assets/ui-web.js"></script>
+    <script src="/dist/assets/vendor.js"></script>
+    <script src="/dist/assets/ui-web.js"></script>
     <script>
       $(document).foundation({
         animation_speed: 400
