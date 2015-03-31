@@ -5,6 +5,7 @@
     "-Promise": true,
     "WowENV": true,
     "moment": true
+    "_": true
   },
   "browser" : true,
   "boss" : true,

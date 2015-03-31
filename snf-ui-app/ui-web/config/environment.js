@@ -1,11 +1,21 @@
 /* jshint node: true */
 
 module.exports = function(environment) {
+  environment = environment || 'development';
+
   var ENV = {
+    djangoContext: true,
     modulePrefix: 'ui-web',
     environment: environment,
     baseURL: 'ui',
     locationType: 'auto',
+    contentSecurityPolicy: {
+      'style-src': "'self' 'unsafe-inline' fonts.gstatic.com *.googleapis.com",
+      'font-src': "'self' fonts.gstatic.com",
+      'report-uri': 'http://localhost:4200',
+      'img-src': "'self' *.kym-cdn.com data:",
+      'script-src': "'self' 'unsafe-eval' 'unsafe-inline'"
+    },
     EmberENV: {
       FEATURES: {
         // Here you can enable experimental features on an ember canary build
@@ -19,8 +29,8 @@ module.exports = function(environment) {
       // when it is created
     }
   };
-
-  if (environment === 'development') {
+  
+  if (environment.match('development')) {
     // ENV.APP.LOG_RESOLVER = true;
     ENV.APP.LOG_ACTIVE_GENERATION = true;
     // ENV.APP.LOG_TRANSITIONS = true;
@@ -29,8 +39,22 @@ module.exports = function(environment) {
     ENV.APP.emberDevTools = {global: true};
   }
 
+  if (environment.match('local|test')) {
+    ENV.djangoContext = false;
+
+    ENV.appSettings = {
+      uuid: 'user-uuid',
+      token: 'token',
+      account_url: '/accounts',
+      storage_host: '/object-store/v1/user-uuid',
+      storage_url: '/object-store/v1',
+
+      logo_url: new Buffer('aHR0cDovL2kyLmt5bS1jZG4uY29tL3Bob3Rvcy9pbWFnZXMvb3JpZ2luYWwvMDAwLzExNy80MjQvdHVtYmxyX2xqd2FpbWhKY0sxcWE0ZWJmbzFfNTAwLmdpZg==', 'base64').toString('ascii'),
+    }
+  }
 
   if (environment === 'test') {
+    ENV.djangoContext = false;
     // Testem prefers this...
     ENV.baseURL = '/';
     ENV.locationType = 'auto';
@@ -42,7 +66,7 @@ module.exports = function(environment) {
     ENV.APP.rootElement = '#ember-testing';
   }
 
-  if (environment === 'production') {
+  if (environment.match('production')) {
 
   }
 
