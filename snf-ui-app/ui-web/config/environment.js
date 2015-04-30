@@ -2,10 +2,18 @@
 
 module.exports = function(environment) {
   var ENV = {
+    djangoContext: true,
+    appSettings: {},
     modulePrefix: 'ui-web',
     environment: environment,
     baseURL: 'ui',
     locationType: 'auto',
+    contentSecurityPolicy: {
+      'style-src': "'self' 'unsafe-inline' fonts.gstatic.com *.googleapis.com",
+      'font-src': "'self' fonts.gstatic.com",
+      'img-src': "'self' *.kym-cdn.com data:",
+      'script-src': "'self' 'unsafe-eval' 'unsafe-inline'"
+    },
     EmberENV: {
       FEATURES: {
         // Here you can enable experimental features on an ember canary build
@@ -31,6 +39,11 @@ module.exports = function(environment) {
 
   if (environment === 'test') {
     // Testem prefers this...
+    ENV.djangoContext = false;
+    ENV.appSettings = {
+      token: 'TEST-TOKEN',
+      auth_url: '/api/identity'
+    };
     ENV.baseURL = '/';
     ENV.locationType = 'none';
 
