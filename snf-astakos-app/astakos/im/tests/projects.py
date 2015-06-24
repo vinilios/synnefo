@@ -34,6 +34,8 @@ def get_pending_apps(user):
 
 class ProjectAPITest(TestCase):
 
+    fixtures = ['initial_data']
+
     def setUp(self):
         self.client = Client()
         component1 = Component.objects.create(name="comp1")
@@ -736,6 +738,9 @@ class TestProjects(TestCase):
     """
     Test projects.
     """
+
+    fixtures = ['initial_data']
+
     def setUp(self):
         # astakos resources
         self.resource = Resource.objects.create(name="astakos.pending_app",
