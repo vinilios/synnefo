@@ -488,7 +488,7 @@ class SimpleBackend(object):
 
     def identify_token_request(self, headers, params):
         content_type = headers.get('CONTENT_TYPE')
-        if content_type != 'application/x-www-form-urlencoded':
+        if content_type.split(";")[0] != 'application/x-www-form-urlencoded':
             raise OA2Error("Invalid Content-Type header")
         return params.get('grant_type')
 
