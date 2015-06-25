@@ -215,7 +215,7 @@ class SimpleBackend(object):
     endpoints_prefix = 'oauth2/'
 
     token_endpoint = 'token/'
-    token_length = 30
+    token_length = 150
     token_expires = 20
 
     authorization_endpoint = 'auth/'
@@ -233,7 +233,7 @@ class SimpleBackend(object):
     user_model = User
 
     def __init__(self, base_url='', endpoints_prefix='oauth2/', id='oauth2',
-                 token_endpoint='token/', token_length=30,
+                 token_endpoint='token/', token_length=150,
                  token_expires=20, authorization_endpoint='auth/',
                  authorization_code_length=60,
                  redirect_uri_limit=5000, **kwargs):
