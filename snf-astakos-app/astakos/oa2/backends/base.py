@@ -271,9 +271,12 @@ class SimpleBackend(object):
         logger.info(u'%r created' % code_instance)
         return code_instance
 
-    def _token_params(self, value, token_type, authorization, scope):
+    def _token_expires(self, token_type, authorization):
+        return self.token_expires
+
+    def _token_params(self, value, token_type, authorization):
         created_at = datetime.datetime.now()
-        expires = self.token_expires
+        expires = self._token_expires(token_type, authorization)
         expires_at = created_at + datetime.timedelta(seconds=expires)
         token_params = {
             'code': value,
@@ -288,9 +291,8 @@ class SimpleBackend(object):
         }
         return token_params
 
-    def create_token(self, value, token_type, authorization, scope,
-                     refresh=False):
-        params = self._token_params(value, token_type, authorization, scope)
+    def create_token(self, value, token_type, authorization, refresh=False):
+        params = self._token_params(value, token_type, authorization)
         if refresh:
             refresh_token = self.generate_token()
             params['refresh_token'] = refresh_token
@@ -355,8 +357,8 @@ class SimpleBackend(object):
         return code
 
     def add_token_for_client(self, token_type, authorization, refresh=False):
-        token = self.generate_token()
-        self.create_token(token, token_type, authorization, refresh)
+        token_id = self.generate_token()
+        token = self.create_token(token_id, token_type, authorization, refresh)
         return token
 
     #
@@ -372,8 +374,9 @@ class SimpleBackend(object):
         return self.response_cls(status=200, body=json_content)
 
     def grant_token_response(self, token, token_type):
-        context = {'access_token': token, 'token_type': token_type,
-                   'expires_in': self.token_expires}
+        expires_in = token.expires_at - token.created_at
+        context = {'access_token': token.code, 'token_type': token_type,
+                   'expires_in': expires_in.seconds}
         json_content = json.dumps(context)
         return self.response_cls(status=200, body=json_content)
 
