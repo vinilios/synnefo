@@ -560,3 +560,40 @@ class TestOA2(TestCase, URLAssertionsMixin):
                     'scope': redirect_uri,
                     'state': None}
         self.assert_access_token_response(r, expected)
+
+        # validate state
+        def _get_state_code(self, assert_existing, state):
+            self.client.login(username="user@synnefo.org", password="password")
+            self.assertCount(AuthorizationCode, assert_existing)
+            r = self.client.authorize_code('client3',
+                                        urlparams={'state': state})
+            redirect = self.get_redirect_url(r)
+            self.assertCount(AuthorizationCode, assert_existing + 1)
+            code_instance = AuthorizationCode.objects.get(
+                code=redirect.params['code'][0])
+            self.assertEqual(code_instance.state, state)
+            self.client.logout()
+            self.client.set_credentials('client3', 'secret')
+            return code_instance.code
+
+        # no state set
+        code = _get_state_code(self, 0, 'state1 state2')
+        r = self.client.access_token(code)
+        self.assertEqual(r.status_code, 400)
+        exp = json.loads(r.content)['exception']
+        self.assertEqual(exp, 'Invalid state')
+
+        # invlid state set
+        code = _get_state_code(self, 0, 'state1 state2')
+        r = self.client.access_token(code, state='state1 state')
+        exp = json.loads(r.content)['exception']
+        self.assertEqual(r.status_code, 400)
+        self.assertEqual(exp, 'Invalid state')
+
+        # valid state set
+        code = _get_state_code(self, 0, 'state1 state2')
+        r = self.client.access_token(code, state='state1 state2')
+        token = json.loads(r.content)['access_token']
+        token = Token.objects.get(code=token)
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(token.state, 'state1 state2')

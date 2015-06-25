@@ -81,9 +81,9 @@ class DjangoBackendORMMixin(object):
         except oa2_models.Token.DoesNotExist:
             raise errors.OA2Error("No such token")
 
-    def delete_authorization_code(self, code):
+    def delete_authorization_code(self, code, reason="consumed"):
         code.delete()
-        logger.info(u'%r deleted' % code)
+        logger.info(u'%r deleted (%s)' % (code, reason))
 
     def delete_token(self, token):
         token.delete()

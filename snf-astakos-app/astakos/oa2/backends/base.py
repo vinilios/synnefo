@@ -284,6 +284,7 @@ class SimpleBackend(object):
             'redirect_uri': authorization.redirect_uri,
             'client': authorization.client,
             'scope': authorization.scope,
+            'state': authorization.state
         }
         return token_params
 
@@ -298,8 +299,8 @@ class SimpleBackend(object):
         logger.info(u'%r created' % token)
         return token
 
-#    def delete_authorization_code(self, code):
-#        del self.code_model.ENTRIES[code]
+    def delete_authorization_code(self, code):
+        del self.code_model.ENTRIES[code]
 
     def get_client_by_id(self, client_id):
         return self.client_model.get(client_id)
@@ -428,8 +429,9 @@ class SimpleBackend(object):
                 self.normalize(code_instance.redirect_uri):
             raise OA2Error("The redirect uri does not match "
                            "the one used during authorization")
+
         token = self.add_token_for_client(token_type, code_instance)
-        self.delete_authorization_code(code_instance)  # use only once
+        self.delete_authorization_code(code_instance, "consumed")  # use only once
         return token, token_type
 
     def consume_token(self, token):
@@ -551,7 +553,6 @@ class SimpleBackend(object):
 
     def validate_state(self, client, params, headers):
         return params.get('state')
-        #raise OA2Error("Invalid state")
 
     def validate_scope(self, client, params, headers):
         scope = params.get('scope')
@@ -590,6 +591,9 @@ class SimpleBackend(object):
         client = self.validate_client(params, headers,
                                       client_id_required=False)
         code_instance = self.validate_code(client, params, headers)
+        if code_instance.state != params.get('state'):
+            self.delete_authorization_code(code_instance, "invalid_state")
+            raise OA2Error("Invalid state")
         redirect_uri = self.validate_redirect_uri(
             client, params, headers,
             expected_value=code_instance.redirect_uri)
