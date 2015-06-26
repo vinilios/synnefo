@@ -17,10 +17,10 @@ if (rootURL) {
 }
 
 Router.map(function() {
-  this.resource('index', {path: '/'});
-  this.resource('containers');
+  this.route('index', {resetNamespace: true, path: '/'});
+  this.route('containers', {resetNamespace: true});
 
-  this.resource('account', {path: '/shared/accounts'}, function() {
+  this.route('account', {resetNamespace: true, path: '/shared/accounts'}, function() {
     this.route('container', {path: '/:account'}, function() {
       this.route('objects', {path: '/:container_name/*path'});
       // *path wont match an initial url with no path set 
@@ -28,14 +28,14 @@ Router.map(function() {
     });
   });
 
-  this.resource('container', { path: '/containers/:container_id'}, function(){
-    this.resource('objects', { path: '/*current_path'}, function(){
-      this.resource('object', { overrideNameAssertion: true }, function(){
+  this.route('container', { resetNamespace: true, path: '/containers/:container_id'}, function(){
+    this.route('objects', { path: '/*current_resetNamespace: true, path'}, function(){
+      this.route('object', { resetNamespace: true, overrideNameAssertion: true }, function(){
         this.route('versions');
       });
     });
   });
-  this.resource('errors/404', {path: '*path'});
+  this.route('errors/404', {resetNamespace:true, path: '*path'});
 });
 
 export default Router;

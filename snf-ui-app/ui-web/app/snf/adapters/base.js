@@ -1,7 +1,7 @@
 import DS from 'ember-data';
 import Ember from 'ember';
 
-var forEach = Ember.ArrayPolyfills.forEach;
+var forEach = Array.prototype.forEach;
 
 /* 
  * A base rest adapter for all synnefo apps.
@@ -101,7 +101,7 @@ export default DS.RESTAdapter.extend({
       
     if (headers !== undefined) {
       hash.beforeSend = function (xhr) {
-        forEach.call(Ember.keys(headers), function(key) {
+        forEach.call(Object.keys(headers), function(key) {
           xhr.setRequestHeader(key, headers[key]);
         });
       };

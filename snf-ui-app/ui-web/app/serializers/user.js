@@ -4,8 +4,7 @@ import Ember from 'ember';
 export default DS.RESTSerializer.extend({
   extract: function(store, type, payload) {
     if (_.isEmpty(payload.uuid_catalog) && !_.isEmpty(payload.displayname_catalog)) {
-      var userEmail = Ember.keys(payload.displayname_catalog)[0];
-      console.log(userEmail)
+      var userEmail = Object.keys(payload.displayname_catalog)[0];
       return {
         'id': payload.displayname_catalog[userEmail],
         'uuid': payload.displayname_catalog[userEmail],
@@ -13,7 +12,7 @@ export default DS.RESTSerializer.extend({
       }
     }
     else if (!_.isEmpty(payload.uuid_catalog) && _.isEmpty(payload.displayname_catalog)) {
-      var userId = Ember.keys(payload.uuid_catalog)[0];
+      var userId = Object.keys(payload.uuid_catalog)[0];
       return {
         'id': userId,
         'uuid': userId,
