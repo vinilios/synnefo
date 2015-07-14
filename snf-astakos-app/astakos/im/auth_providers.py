@@ -25,6 +25,7 @@ from django.utils.encoding import smart_unicode
 from django.utils.translation import ugettext as _
 from django.contrib.auth.models import Group
 from django import template
+from django.db import transaction
 
 from django.conf import settings
 
@@ -211,6 +212,10 @@ class AuthProvider(object):
         self.log('removed')
 
     def add_to_user(self, **params):
+        # db lock
+        objects = self.user.__class__.objects
+        self.user = objects.select_for_update().get(pk=self.user.pk)
+
         if self._instance:
             raise Exception("Cannot add an existing provider")
 
