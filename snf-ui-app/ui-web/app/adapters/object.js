@@ -8,11 +8,14 @@ export default StorageAdapter.extend({
     var prefix = this.urlPrefix();
     url.push(prefix);
     if (container) {
+      container = encodeURIComponent(container).replace(/\%2f/gi, '/');
       url.push(container);
     }
 
     url = url.join('/');
-    if (id) { url = url + "/" + encodeURIComponent(id); }
+    if (id) { 
+      url = url + "/" + encodeURIComponent(id).replace(/\%2f/gi, '/'); 
+    }
     //var url = this._super(type, container, snapshot);
     //if (id) { url = url + "/" + encodeURIComponent(id); }
 
@@ -72,6 +75,7 @@ export default StorageAdapter.extend({
     }
 
     escapedPath = encodeURIComponent(query.path).replace(/\%2f/gi, '/');
+    delete query.path;
     parentURL = (escapedPath === '/' ? url : (url + '/' + escapedPath));
     
     return new Ember.RSVP.Promise(function(resolve, reject) {
@@ -259,7 +263,6 @@ export default StorageAdapter.extend({
         }
         Ember.run(null, resolve, res);
       }, function(jqXHR) {
-        var response = Ember.$.parseJSON(jqXHR.responseText);
         jqXHR.then = null; // tame jQuery's ill mannered promises
         Ember.run(null, reject, jqXHR);
       });
