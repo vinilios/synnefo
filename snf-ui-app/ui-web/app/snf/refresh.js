@@ -104,7 +104,9 @@ var Refresher = Ember.Object.extend({
     this.set('timeouts', []);
     this.set('specs', specs || []);
     this.set('context', context || {});
-    this.set('interval', interval || 2000);
+    let defaultInterval = context && 
+                          context.get('settings.modelRefreshInterval');
+    this.set('interval', interval || defaultInterval || 2000);
     this.set('paused', false);
   },
 
@@ -113,16 +115,17 @@ var Refresher = Ember.Object.extend({
     _spec = spec;
     spec = spec.split(":");
     name = spec[0];
+    interval = '';
     if (spec.length > 1) { interval = spec[1]; }
     
     // resolve context and param|method
     parts = name.split(".");
     lastpart = name;
-    contextName = name;
 
     context = this.get('context');
 
     if (parts.length > 1) {
+      contextName = name;
       context = this.get('context').get(
         parts.slice(0, parts.length-1).join('.'));
       lastpart = parts[parts.length-1];
@@ -181,7 +184,8 @@ var Refresher = Ember.Object.extend({
       var callee = spec.callee, query;
       
       if (!callee) { debugger }
-      Ember.assert(taskSpec + " is invalid task spec", callee);
+      Ember.assert(taskSpec + " is invalid task spec", !!callee);
+
       if ((callee instanceof DS.PromiseArray) ||
           (callee instanceof DS.PromiseObject) ||
           (callee instanceof Ember.RSVP.Promise)) {
@@ -190,12 +194,21 @@ var Refresher = Ember.Object.extend({
         }
       }
 
+      if (callee instanceof Ember.ComputedProperty) {
+        callee = callee.get(spec.context);
+      }
+
       if (callee instanceof DS.RecordArray) {
         callee.update();
       } else if(callee instanceof DS.Model) {
         callee.reload();
       } else {
-        spec.callee();
+        if (callee instanceof Function) {
+          callee();
+        } else {
+            console.error("Inavlid callee for ", spec.spec, callee);
+        }
+
       }
     }
 
