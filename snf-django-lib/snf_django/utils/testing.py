@@ -206,19 +206,19 @@ def mocked_quotaholder(success=True):
 
 class BaseAPITest(TestCase):
     def get(self, url, user='user', *args, **kwargs):
-        with astakos_user(user):
+        with astakos_user(user, kwargs.pop('_projects', None)):
             with mocked_quotaholder():
                 response = self.client.get(url, *args, **kwargs)
         return response
 
     def head(self, url, user='user', *args, **kwargs):
-        with astakos_user(user):
+        with astakos_user(user, kwargs.pop('_projects', None)):
             with mocked_quotaholder():
                 response = self.client.head(url, *args, **kwargs)
         return response
 
-    def delete(self, url, user='user'):
-        with astakos_user(user):
+    def delete(self, url, user='user', **kwargs):
+        with astakos_user(user, kwargs.pop('_projects', None)):
             with mocked_quotaholder() as m:
                 self.mocked_quotaholder = m
                 response = self.client.delete(url)
@@ -227,7 +227,7 @@ class BaseAPITest(TestCase):
     def post(self, url, user='user', params={}, ctype='json', *args, **kwargs):
         if ctype == 'json':
             content_type = 'application/json'
-        with astakos_user(user):
+        with astakos_user(user, kwargs.pop('_projects', None)):
             with mocked_quotaholder() as m:
                 self.mocked_quotaholder = m
                 response = self.client.post(url, params,
@@ -238,7 +238,7 @@ class BaseAPITest(TestCase):
     def put(self, url, user='user', params={}, ctype='json', *args, **kwargs):
         if ctype == 'json':
             content_type = 'application/json'
-        with astakos_user(user):
+        with astakos_user(user, kwargs.pop('_projects', None)):
             with mocked_quotaholder() as m:
                 self.mocked_quotaholder = m
                 response = self.client.put(url, params,
